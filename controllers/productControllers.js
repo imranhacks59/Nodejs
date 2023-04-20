@@ -1,40 +1,43 @@
-const fs= require('fs');
-// const index=fs.readFileSync('data.json','utf-8')
-const data = JSON.parse(fs.readFileSync('data.json','utf-8'));
-const products = data.products
+// const fs= require('fs');
+// // const index=fs.readFileSync('data.json','utf-8')
+// const data = JSON.parse(fs.readFileSync('data.json','utf-8'));
+// const products = data.products
+const Product = require('../models/productModels')
 
 // create product
-exports.createProduct=(req,res)=>{
-    const product = req.body
-    products.push(product);
+exports.createProduct=async(req,res)=>{
+    const product  = await Product.create(req.body)
+    // products.push(product);
+    
     res.json(product)
 }
 
-exports.getAllProducts=(req,res)=>{
-    res.json(products)
+exports.getAllProducts=async(req,res)=>{
+    const product = await Product.find()
+    res.json(product)
 }
 
 // get single products
-exports.getSingleProducts=(req,res)=>{
-    const id = req.params.id
-    console.log(id)
-    const product = products.find(p=>p.id==id)
-    res.json(product)
+exports.getSingleProducts=async(req,res)=>{
+     const product  = await Product.findById(req.params.id);
+
+     res.json(product)
 }
 
 // update products
-exports.updateProduct=(req,res)=>{
-    const id= req.params.id;
-    const updatedData = {...req.body}
-    const productIndex = products.findIndex(p=>p.id==id)
-    products.splice(productIndex,1,updatedData)
-    res.json(updatedData)
+exports.updateProduct=async(req,res)=>{
+      let product = await Product.findById(req.params.id);
+      product = await Product.findByIdAndUpdate(req.params.id,req.body,{
+        new:true,
+        runValidators:true,
+        useFindAndModify:false
+      })
+      res.json(product)
 }
 
 // delete products
-exports.deleteProduct =(req,res)=>{
-    const id = req.params.id
-    const productIndex=products.findIndex(p=>p.id==id)
-    products.splice(productIndex,1)
-    res.json('product has been deleted')
+exports.deleteProduct =async(req,res)=>{
+    const product = await Product.findByIdAndDelete(req.params.id);
+
+    res.json('product deleted successfully')
 }
